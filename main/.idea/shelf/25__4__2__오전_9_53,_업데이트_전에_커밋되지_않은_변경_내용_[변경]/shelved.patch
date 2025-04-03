@@ -1,0 +1,370 @@
+Index: src/chat/server/Server.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package javaproject.chat.server;\r\n\r\n\r\nimport java.io.IOException;\r\nimport java.net.ServerSocket;\r\nimport java.net.Socket;\r\n\r\nimport static javaproject.chat.util.MyLogger.log;\r\n\r\npublic class Server {\r\n    private final int port;\r\n    private final CommandManager commandManager;\r\n    private final SessionManager sessionManager;\r\n\r\n    private ServerSocket serverSocket;\r\n\r\n    public Server(int port, CommandManager commandManager, SessionManager sessionManager) {\r\n        this.port = port;\r\n        this.commandManager = commandManager;\r\n        this.sessionManager = sessionManager;\r\n    }\r\n\r\n\r\n    public void start() throws IOException {\r\n        log(\"서버 시작: \" + commandManager.getClass());\r\n        serverSocket = new ServerSocket(port);\r\n        log(\"서버 소켓 시작- 리스닝 포트 : \" + port);\r\n\r\n        running();\r\n    }\r\n\r\n    private void running() {\r\n        try {\r\n            while (true) {\r\n                Socket socket = serverSocket.accept();\r\n\r\n                Session session = new Session(socket, commandManager, sessionManager);\r\n                Thread thread = new Thread(session);\r\n                thread.start();\r\n            }\r\n        } catch (IOException e) {\r\n            log(\"서버 소켓종료 : \" + e);\r\n        }\r\n    }\r\n\r\n    private void addShutdownHook() {\r\n        ShutdownHook target = new ShutdownHook(serverSocket, sessionManager);\r\n        Runtime.getRuntime().addShutdownHook(new Thread(target, \"shutdown\"));\r\n    }\r\n\r\n    static class ShutdownHook implements Runnable {\r\n        private final ServerSocket serverSocket;\r\n        private final SessionManager sessionManager;\r\n\r\n        ShutdownHook(ServerSocket serverSocket, SessionManager sessionManager) {\r\n            this.serverSocket = serverSocket;\r\n            this.sessionManager = sessionManager;\r\n        }\r\n\r\n\r\n        @Override\r\n        public void run() {\r\n            log(\"shutdownHook 실행\");\r\n            try {\r\n                sessionManager.closeAll();\r\n                serverSocket.close();\r\n\r\n                Thread.sleep(1000);\r\n            } catch (Exception e) {\r\n                e.printStackTrace();\r\n                System.out.println(\"e: \" + e);\r\n            }\r\n        }\r\n\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/chat/server/Server.java b/src/chat/server/Server.java
+--- a/src/chat/server/Server.java	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
++++ b/src/chat/server/Server.java	(date 1743486787498)
+@@ -33,7 +33,6 @@
+         try {
+             while (true) {
+                 Socket socket = serverSocket.accept();
+-
+                 Session session = new Session(socket, commandManager, sessionManager);
+                 Thread thread = new Thread(session);
+                 thread.start();
+Index: src/DAO/SuperDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package javaproject.DAO;\r\n\r\n\r\nimport java.sql.Connection;\r\nimport java.sql.DriverManager;\r\nimport java.sql.SQLException;\r\nimport java.util.List;\r\n\r\npublic class SuperDAO<T> {\r\n    private String driver = \"org.mariadb.jdbc.Driver\";\r\n//    private String url = \"jdbc:mariadb://192.168.0.18:3306/mysql\";\r\n    private String url = \"jdbc:mariadb://localhost:3306/mysql\";\r\n    private String user = \"root\";\r\n//    private String password = \"park1676\";\r\n    private String password = \"1111\";\r\n    private static Connection conn;\r\n    public SuperDAO() {\r\n        init();\r\n    }\r\n\r\n    private void init() {\r\n        try {\r\n            Class.forName(driver);\r\n            System.out.println(\"클래스 load\");\r\n        } catch (ClassNotFoundException e) {\r\n            throw new RuntimeException(e);\r\n        }\r\n    }\r\n\r\n    public Connection getConnection() {\r\n        try {\r\n            conn = DriverManager.getConnection(url, user, password);\r\n        } catch (SQLException e) {\r\n            throw new RuntimeException(e);\r\n        }\r\n        return conn;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/DAO/SuperDAO.java b/src/DAO/SuperDAO.java
+--- a/src/DAO/SuperDAO.java	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
++++ b/src/DAO/SuperDAO.java	(date 1743487681549)
+@@ -8,8 +8,8 @@
+ 
+ public class SuperDAO<T> {
+     private String driver = "org.mariadb.jdbc.Driver";
+-//    private String url = "jdbc:mariadb://192.168.0.18:3306/mysql";
+-    private String url = "jdbc:mariadb://localhost:3306/mysql";
++    private String url = "jdbc:mariadb://192.168.0.18:3306/mysql";
++//    private String url = "jdbc:mariadb://localhost:3306/mysql";
+     private String user = "root";
+ //    private String password = "park1676";
+     private String password = "1111";
+Index: .idea/shelf/25__3__25___4_23__________1.xml
+===================================================================
+diff --git a/.idea/shelf/25__3__25___4_23__________1.xml b/.idea/shelf/25__3__25___4_23__________1.xml
+deleted file mode 100644
+--- a/.idea/shelf/25__3__25___4_23__________1.xml	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
++++ /dev/null	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
+@@ -1,4 +0,0 @@
+-<changelist name="25__3__25__오후_4_23,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1" date="1742887410571" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/25__3__25__오후_4_23,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" />
+-  <option name="DESCRIPTION" value="25. 3. 25. 오후 4:23, 체크아웃 전에 커밋되지 않은 변경 내용 [변경]" />
+-</changelist>
+\ No newline at end of file
+Index: src/chat/util/MyLoggerMain.java
+===================================================================
+diff --git a/src/chat/util/MyLoggerMain.java b/src/chat/util/MyLoggerMain.java
+deleted file mode 100644
+--- a/src/chat/util/MyLoggerMain.java	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
++++ /dev/null	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
+@@ -1,8 +0,0 @@
+-package javaproject.chat.util;
+-
+-public class MyLoggerMain {
+-    public static void main(String[] args) {
+-        MyLogger.log("hello thread");
+-        MyLogger.log(123);
+-    }
+-}
+Index: .idea/shelf/25__3__25__오후_4_23,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/25__3__25__오후_4_23,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch b/.idea/shelf/25__3__25__오후_4_23,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/25__3__25__오후_4_23,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
++++ /dev/null	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
+@@ -1,122 +0,0 @@
+-Index: .idea/libraries/mysql_osA4Bg.xml
+-===================================================================
+-diff --git a/.idea/libraries/mysql_osA4Bg.xml b/.idea/libraries/mysql_osA4Bg.xml
+-deleted file mode 100644
+---- a/.idea/libraries/mysql_osA4Bg.xml	(revision 9ce9942fd75d958d8fb63d0982cd118ec33fe444)
+-+++ /dev/null	(revision 9ce9942fd75d958d8fb63d0982cd118ec33fe444)
+-@@ -1,9 +0,0 @@
+--<component name="libraryTable">
+--  <library name="mysql.osA4Bg">
+--    <CLASSES>
+--      <root url="jar://$PROJECT_DIR$/humanAmusementParkProject-main (1)/humanAmusementParkProject-main/.idea/dataSources/531c54af-4038-4a47-a407-35df4c3f893e/storage_v2/_src_/schema/mysql.osA4Bg.zip!/" />
+--    </CLASSES>
+--    <JAVADOC />
+--    <SOURCES />
+--  </library>
+--</component>
+-\ No newline at end of file
+-Index: .idea/libraries/lib.xml
+-===================================================================
+-diff --git a/.idea/libraries/lib.xml b/.idea/libraries/lib.xml
+-deleted file mode 100644
+---- a/.idea/libraries/lib.xml	(revision 9ce9942fd75d958d8fb63d0982cd118ec33fe444)
+-+++ /dev/null	(revision 9ce9942fd75d958d8fb63d0982cd118ec33fe444)
+-@@ -1,10 +0,0 @@
+--<component name="libraryTable">
+--  <library name="lib">
+--    <CLASSES>
+--      <root url="jar://$PROJECT_DIR$/humanAmusementParkProject-main (1)/humanAmusementParkProject-main/amusementParkProject/lib/lombok.jar!/" />
+--      <root url="jar://$PROJECT_DIR$/humanAmusementParkProject-main (1)/humanAmusementParkProject-main/amusementParkProject/lib/mariadb-java-client-3.5.2.jar!/" />
+--    </CLASSES>
+--    <JAVADOC />
+--    <SOURCES />
+--  </library>
+--</component>
+-\ No newline at end of file
+-Index: .idea/modules.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectModuleManager\">\r\n    <modules>\r\n      <module fileurl=\"file://$PROJECT_DIR$/amusement.iml\" filepath=\"$PROJECT_DIR$/amusement.iml\" />\r\n    </modules>\r\n  </component>\r\n</project>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/modules.xml b/.idea/modules.xml
+---- a/.idea/modules.xml	(revision 9ce9942fd75d958d8fb63d0982cd118ec33fe444)
+-+++ b/.idea/modules.xml	(date 1742886716545)
+-@@ -2,7 +2,7 @@
+- <project version="4">
+-   <component name="ProjectModuleManager">
+-     <modules>
+--      <module fileurl="file://$PROJECT_DIR$/amusement.iml" filepath="$PROJECT_DIR$/amusement.iml" />
+-+      <module fileurl="file://$PROJECT_DIR$/0324-1.iml" filepath="$PROJECT_DIR$/0324-1.iml" />
+-     </modules>
+-   </component>
+- </project>
+-\ No newline at end of file
+-Index: .idea/libraries/lombok.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/libraries/lombok.xml b/.idea/libraries/lombok.xml
+-new file mode 100644
+---- /dev/null	(date 1742886656723)
+-+++ b/.idea/libraries/lombok.xml	(date 1742886656723)
+-@@ -0,0 +1,10 @@
+-+<component name="libraryTable">
+-+  <library name="lombok">
+-+    <CLASSES>
+-+      <root url="jar://$PROJECT_DIR$/amusementParkProject/lib/lombok.jar!/" />
+-+      <root url="jar://$PROJECT_DIR$/amusementParkProject/lib/mariadb-java-client-3.5.2.jar!/" />
+-+    </CLASSES>
+-+    <JAVADOC />
+-+    <SOURCES />
+-+  </library>
+-+</component>
+-\ No newline at end of file
+-Index: 0324-1.iml
+-===================================================================
+-diff --git a/0324-1.iml b/0324-1.iml
+-new file mode 100644
+---- /dev/null	(date 1742886605242)
+-+++ b/0324-1.iml	(date 1742886605242)
+-@@ -0,0 +1,19 @@
+-+<?xml version="1.0" encoding="UTF-8"?>
+-+<module type="JAVA_MODULE" version="4">
+-+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+-+    <exclude-output />
+-+    <content url="file://$MODULE_DIR$">
+-+      <sourceFolder url="file://$MODULE_DIR$/amusementParkProject/src" isTestSource="false" packagePrefix="javaproject" />
+-+    </content>
+-+    <orderEntry type="inheritedJdk" />
+-+    <orderEntry type="sourceFolder" forTests="false" />
+-+    <orderEntry type="library" name="lombok" level="project" />
+-+    <orderEntry type="module-library" scope="PROVIDED">
+-+      <library>
+-+        <CLASSES />
+-+        <JAVADOC />
+-+        <SOURCES />
+-+      </library>
+-+    </orderEntry>
+-+  </component>
+-+</module>
+-\ No newline at end of file
+-Index: .idea/misc.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_1_8\" project-jdk-name=\"1.8\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/out\" />\r\n  </component>\r\n</project>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/.idea/misc.xml b/.idea/misc.xml
+---- a/.idea/misc.xml	(revision 9ce9942fd75d958d8fb63d0982cd118ec33fe444)
+-+++ b/.idea/misc.xml	(date 1742886716530)
+-@@ -1,6 +1,6 @@
+- <?xml version="1.0" encoding="UTF-8"?>
+- <project version="4">
+--  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+-+  <component name="ProjectRootManager" version="2" languageLevel="JDK_18" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
+-     <output url="file://$PROJECT_DIR$/out" />
+-   </component>
+- </project>
+-\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ArtifactsWorkspaceSettings\">\r\n    <artifacts-to-build>\r\n      <artifact name=\"0324-1:jar\" />\r\n    </artifacts-to-build>\r\n  </component>\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"42c61ecd-fdd4-4c5d-89aa-f62a03fac6a9\" name=\"변경\" comment=\"0401\">\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/commons_io_2_18_0_sources.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/Service/AdMenuS.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/Service/AdMenuS.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/Service/MemMenuS.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/Service/MemMenuS.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/chat/gui/ChatClient.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/chat/gui/ChatClient.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/chat/gui/ChatGUI.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/chat/gui/ChatGUI.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/chat/server/CommandManagerV2.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/chat/server/CommandManagerV2.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/chat/server/Server.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/chat/server/Server.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/chat/server/ServerMain.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/chat/server/ServerMain.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/chat/server/Session.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/chat/server/Session.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/chat/server/SessionManager.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/chat/server/SessionManager.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"master\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;kangeyoung&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/humanAmusementPark/humanAmusementParkProject.git&quot;,\r\n    &quot;accountId&quot;: &quot;ce997ee5-0cad-4086-9b1d-f0f67e5e2908&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 4\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2upXm7ZGCcqYNG5UXOAVtrjnHkp\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"Downloaded.Files.Path.Enabled\": \"false\",\r\n    \"Repository.Attach.Annotations\": \"true\",\r\n    \"Repository.Attach.JavaDocs\": \"false\",\r\n    \"Repository.Attach.Sources\": \"false\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"RunOnceActivity.git.unshallow\": \"true\",\r\n    \"SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"git-widget-placeholder\": \"main\",\r\n    \"kotlin-language-version-configured\": \"true\",\r\n    \"last_opened_file_path\": \"C:/Users/hu-01/Desktop/0324-1/lib/commons-io-2.18.0/commons-io-2.18.0.jar\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"onboarding.tips.debug.path\": \"C:/Users/hu-19/Desktop/main/src/Main.java\",\r\n    \"project.structure.last.edited\": \"라이브러리\",\r\n    \"project.structure.proportion\": \"0.15\",\r\n    \"project.structure.side.proportion\": \"0.2\",\r\n    \"settings.editor.selected.configurable\": \"project.propCompiler\",\r\n    \"vue.rearranger.settings.migration\": \"true\",\r\n    \"애플리케이션.Main.executor\": \"Run\",\r\n    \"애플리케이션.Main1.executor\": \"Run\",\r\n    \"애플리케이션.MemMenuS.executor\": \"Run\",\r\n    \"애플리케이션.MemTicketS.executor\": \"Run\",\r\n    \"애플리케이션.MemTimeTableS.executor\": \"Run\",\r\n    \"애플리케이션.ServerMain.executor\": \"Run\",\r\n    \"애플리케이션.dateTest.executor\": \"Run\"\r\n  }\r\n}]]></component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\hu-19\\Desktop\\main\\src\\resource\\images\" />\r\n      <recent name=\"C:\\Users\\hu-19\\Desktop\\main\\src\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\" selected=\"애플리케이션.Main\">\r\n    <configuration name=\"Main\" type=\"Application\" factoryName=\"Application\" singleton=\"false\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"javaproject.Service.Main\" />\r\n      <module name=\"0324-1\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"javaproject.Service.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"MemMenuS\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"javaproject.Service.MemMenuS\" />\r\n      <module name=\"0324-1\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"javaproject.Service.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"ServerMain\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"javaproject.chat.server.ServerMain\" />\r\n      <module name=\"0324-1\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"javaproject.chat.server.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"JetRunConfigurationType\">\r\n      <module name=\"mainmain\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"KotlinStandaloneScriptRunConfigurationType\">\r\n      <module name=\"mainmain\" />\r\n      <option name=\"filePath\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <list>\r\n      <item itemvalue=\"애플리케이션.Main\" />\r\n      <item itemvalue=\"애플리케이션.MemMenuS\" />\r\n      <item itemvalue=\"애플리케이션.ServerMain\" />\r\n    </list>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"애플리케이션.Main\" />\r\n        <item itemvalue=\"애플리케이션.ServerMain\" />\r\n        <item itemvalue=\"애플리케이션.MemMenuS\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46\" />\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"애플리케이션 수준\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"디폴트 작업\">\r\n      <changelist id=\"42c61ecd-fdd4-4c5d-89aa-f62a03fac6a9\" name=\"변경\" comment=\"03241250\" />\r\n      <created>1742946646194</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1742946646194</updated>\r\n      <workItem from=\"1742946647738\" duration=\"17209000\" />\r\n      <workItem from=\"1742975472734\" duration=\"476000\" />\r\n      <workItem from=\"1742975978609\" duration=\"1175000\" />\r\n      <workItem from=\"1743034492453\" duration=\"3312000\" />\r\n      <workItem from=\"1743038098386\" duration=\"10775000\" />\r\n      <workItem from=\"1743063074585\" duration=\"4840000\" />\r\n      <workItem from=\"1743068260538\" duration=\"456000\" />\r\n      <workItem from=\"1743068734138\" duration=\"13168000\" />\r\n      <workItem from=\"1743209801809\" duration=\"5398000\" />\r\n      <workItem from=\"1743215806429\" duration=\"12942000\" />\r\n      <workItem from=\"1743385383282\" duration=\"20007000\" />\r\n      <workItem from=\"1743464831403\" duration=\"15725000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"ㅁㅁㅁ\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743146193843</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743146193843</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"테스트 수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743224138044</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743224138044</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"테스트 수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743224173839</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743224173839</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"테스트 수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743393806602</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743393806602</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"테스트 수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743394426439</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743394426439</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00006\" summary=\"테스트 수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743394492268</created>\r\n      <option name=\"number\" value=\"00006\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743394492268</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00007\" summary=\"테스트 수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743394525806</created>\r\n      <option name=\"number\" value=\"00007\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743394525806</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00008\" summary=\"테스트 수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743407082118</created>\r\n      <option name=\"number\" value=\"00008\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743407082118</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00009\" summary=\"0401\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743470978601</created>\r\n      <option name=\"number\" value=\"00009\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743470978602</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"10\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"origin/main\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"03241250\" />\r\n    <MESSAGE value=\"ㅁㅁㅁ\" />\r\n    <MESSAGE value=\"테스트 수정\" />\r\n    <MESSAGE value=\"0401\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"0401\" />\r\n  </component>\r\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\r\n    <expand />\r\n    <select />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
++++ b/.idea/workspace.xml	(date 1743555222374)
+@@ -10,17 +10,14 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="42c61ecd-fdd4-4c5d-89aa-f62a03fac6a9" name="변경" comment="0401">
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/commons_io_2_18_0_sources.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/dataSources/eae716b7-5f43-4d67-aee9-24e54d108acc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/eae716b7-5f43-4d67-aee9-24e54d108acc.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/25__3__25__오후_4_23,_체크아웃_전에_커밋되지_않은_변경_내용_[변경]1/shelved.patch" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/Service/AdMenuS.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Service/AdMenuS.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/Service/MemMenuS.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Service/MemMenuS.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/chat/gui/ChatClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/chat/gui/ChatClient.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/chat/gui/ChatGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/chat/gui/ChatGUI.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/chat/server/CommandManagerV2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/chat/server/CommandManagerV2.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/DAO/SuperDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DAO/SuperDAO.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/chat/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/chat/server/Server.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/chat/server/ServerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/chat/server/ServerMain.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/chat/server/Session.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/chat/server/Session.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/chat/server/SessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/chat/server/SessionManager.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/chat/util/MyLoggerMain.java" beforeDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -63,37 +60,37 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "Downloaded.Files.Path.Enabled": "false",
+-    "Repository.Attach.Annotations": "true",
+-    "Repository.Attach.JavaDocs": "false",
+-    "Repository.Attach.Sources": "false",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "RunOnceActivity.git.unshallow": "true",
+-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+-    "git-widget-placeholder": "main",
+-    "kotlin-language-version-configured": "true",
+-    "last_opened_file_path": "C:/Users/hu-01/Desktop/0324-1/lib/commons-io-2.18.0/commons-io-2.18.0.jar",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "onboarding.tips.debug.path": "C:/Users/hu-19/Desktop/main/src/Main.java",
+-    "project.structure.last.edited": "라이브러리",
+-    "project.structure.proportion": "0.15",
+-    "project.structure.side.proportion": "0.2",
+-    "settings.editor.selected.configurable": "project.propCompiler",
+-    "vue.rearranger.settings.migration": "true",
+-    "애플리케이션.Main.executor": "Run",
+-    "애플리케이션.Main1.executor": "Run",
+-    "애플리케이션.MemMenuS.executor": "Run",
+-    "애플리케이션.MemTicketS.executor": "Run",
+-    "애플리케이션.MemTimeTableS.executor": "Run",
+-    "애플리케이션.ServerMain.executor": "Run",
+-    "애플리케이션.dateTest.executor": "Run"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
++    &quot;Repository.Attach.Annotations&quot;: &quot;true&quot;,
++    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
++    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
++    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
++    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
++    &quot;last_opened_file_path&quot;: &quot;C:/Users/hu-19/Desktop/main/lib/lombok.jar&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/hu-19/Desktop/main/src/Main.java&quot;,
++    &quot;project.structure.last.edited&quot;: &quot;모듈&quot;,
++    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
++    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;project.propCompiler&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
++    &quot;애플리케이션.Main.executor&quot;: &quot;Run&quot;,
++    &quot;애플리케이션.Main1.executor&quot;: &quot;Run&quot;,
++    &quot;애플리케이션.MemMenuS.executor&quot;: &quot;Run&quot;,
++    &quot;애플리케이션.MemTicketS.executor&quot;: &quot;Run&quot;,
++    &quot;애플리케이션.MemTimeTableS.executor&quot;: &quot;Run&quot;,
++    &quot;애플리케이션.ServerMain.executor&quot;: &quot;Run&quot;,
++    &quot;애플리케이션.dateTest.executor&quot;: &quot;Run&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="RecentsManager">
+     <key name="MoveFile.RECENT_KEYS">
+       <recent name="C:\Users\hu-19\Desktop\main\src\resource\images" />
+@@ -167,8 +164,8 @@
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+-        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46" />
+-        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46" />
++        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
++        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+       </set>
+     </attachedChunks>
+   </component>
+@@ -192,6 +189,7 @@
+       <workItem from="1743215806429" duration="12942000" />
+       <workItem from="1743385383282" duration="20007000" />
+       <workItem from="1743464831403" duration="15725000" />
++      <workItem from="1743552976561" duration="975000" />
+     </task>
+     <task id="LOCAL-00001" summary="ㅁㅁㅁ">
+       <option name="closed" value="true" />
+@@ -300,6 +298,17 @@
+     <MESSAGE value="테스트 수정" />
+     <MESSAGE value="0401" />
+     <option name="LAST_COMMIT_MESSAGE" value="0401" />
++  </component>
++  <component name="XDebuggerManager">
++    <breakpoint-manager>
++      <breakpoints>
++        <line-breakpoint enabled="true" type="java-line">
++          <url>file://$PROJECT_DIR$/src/Main.java</url>
++          <line>7</line>
++          <option name="timeStamp" value="2" />
++        </line-breakpoint>
++      </breakpoints>
++    </breakpoint-manager>
+   </component>
+   <component name="XSLT-Support.FileAssociations.UIState">
+     <expand />
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectModuleManager\">\r\n    <modules>\r\n      <module fileurl=\"file://$PROJECT_DIR$/0324-1.iml\" filepath=\"$PROJECT_DIR$/0324-1.iml\" />\r\n      <module fileurl=\"file://$PROJECT_DIR$/mainmain.iml\" filepath=\"$PROJECT_DIR$/mainmain.iml\" />\r\n    </modules>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+--- a/.idea/modules.xml	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
++++ b/.idea/modules.xml	(date 1743487142360)
+@@ -3,6 +3,7 @@
+   <component name="ProjectModuleManager">
+     <modules>
+       <module fileurl="file://$PROJECT_DIR$/0324-1.iml" filepath="$PROJECT_DIR$/0324-1.iml" />
++      <module fileurl="file://$PROJECT_DIR$/main.iml" filepath="$PROJECT_DIR$/main.iml" />
+       <module fileurl="file://$PROJECT_DIR$/mainmain.iml" filepath="$PROJECT_DIR$/mainmain.iml" />
+     </modules>
+   </component>
+Index: .idea/dataSources.local.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"dataSourceStorageLocal\" created-in=\"IU-243.24978.46\">\r\n    <data-source name=\"@localhost\" uuid=\"eae716b7-5f43-4d67-aee9-24e54d108acc\">\r\n      <database-info product=\"MariaDB\" version=\"11.7.2-MariaDB\" jdbc-version=\"4.2\" driver-name=\"MariaDB Connector/J\" driver-version=\"3.3.3\" dbms=\"MARIADB\" exact-version=\"11.7.2\" exact-driver-version=\"3.3\">\r\n        <extra-name-characters>#@</extra-name-characters>\r\n        <identifier-quote-string>`</identifier-quote-string>\r\n      </database-info>\r\n      <case-sensitivity plain-identifiers=\"lower\" quoted-identifiers=\"lower\" />\r\n      <secret-storage>master_key</secret-storage>\r\n      <user-name>root</user-name>\r\n      <schema-mapping>\r\n        <introspection-scope>\r\n          <node kind=\"schema\" qname=\"@\" />\r\n        </introspection-scope>\r\n      </schema-mapping>\r\n    </data-source>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/dataSources.local.xml b/.idea/dataSources.local.xml
+--- a/.idea/dataSources.local.xml	(revision 1d9e0165fb34daa8b25276966f5177fc51d702da)
++++ b/.idea/dataSources.local.xml	(date 1743487142375)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="dataSourceStorageLocal" created-in="IU-243.24978.46">
++  <component name="dataSourceStorageLocal" created-in="IU-243.26053.27">
+     <data-source name="@localhost" uuid="eae716b7-5f43-4d67-aee9-24e54d108acc">
+       <database-info product="MariaDB" version="11.7.2-MariaDB" jdbc-version="4.2" driver-name="MariaDB Connector/J" driver-version="3.3.3" dbms="MARIADB" exact-version="11.7.2" exact-driver-version="3.3">
+         <extra-name-characters>#@</extra-name-characters>
